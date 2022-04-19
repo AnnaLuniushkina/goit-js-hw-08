@@ -19,16 +19,15 @@ function onFormInput(event) {
 }
 
 function savedForm() {
-    let formData = localStorage.getItem('feedback-form-state');
+    const formData = localStorage.getItem('feedback-form-state');
 
     if (formData) {
-        formData = JSON.parse(formData);
-        console.log(formData);
-    };
-
-    Object.entries(formData).forEach(
-        ([name, value]) => (formRefs.elements[name].value = value),
-    );
+        const { email, message } = JSON.parse(formData);
+        formRefs.email.value = email;
+        formRefs.message.value = message;
+        formData.email = email;
+        formData.message = message;
+    }
 }
 
 function onFormSubmit(event) {

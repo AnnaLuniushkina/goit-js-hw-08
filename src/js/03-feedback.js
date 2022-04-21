@@ -1,32 +1,36 @@
 const throttle = require('lodash.throttle');
 
 const formRefs = document.querySelector('.feedback-form');
-
-let formData = {};
-
-formRefs.addEventListener('submit', onFormSubmit);
-formRefs.addEventListener('input', throttle(onFormInput, 500));
+const KEY = "feedback-form-state";
+const formSavedData = {};
 
 savedForm();
 
-function onFormInput(event) {
-    formData[event.target.name] = event.target.value;
-    console.log(formData);
+formRefs.addEventListener('input', throttle((event) => {
+    const formData = new FormData(formRefs);
+    formData.forEach((name, value) => console.log(`${value} - ${name}`));
 
-    if (formData) {
-        localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+    let parsedData = localStorage.getItem(KEY);
+    parsedData = parsedData ? JSON.parse(parsedData) : formSavedData;
+    console.log(parsedData);
+    parsedData[event.target.name] = event.target.value;
+    if (parsedData) {
+        localStorage.setItem(KEY, JSON.stringify(parsedData));
     }
-}
+}, 500));
+
+formRefs.addEventListener('submit', onFormSubmit);
 
 function savedForm() {
-    const formData = localStorage.getItem('feedback-form-state');
+    let savedData = localStorage.getItem(KEY);
 
-    if (formData) {
-        const { email, message } = JSON.parse(formData);
+    if (savedData) {
+        const { email, message } = JSON.parse(savedData);
         formRefs.email.value = email;
         formRefs.message.value = message;
-        formData.email = email;
-        formData.message = message;
+        formSavedData.email = email;
+        formSavedData.message = message;
+        console.log(savedData);
     }
 }
 
@@ -34,6 +38,6 @@ function onFormSubmit(event) {
     event.preventDefault();
     console.log('Відправляємо форму');
     event.currentTarget.reset();
-    localStorage.removeItem("feedback-form-state");
-    console.log(formData);
+    localStorage.removeItem(KEY);
+    console.log(formSavedData);
 }
